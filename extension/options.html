@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mail Mutuelle — Réglages</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><img src="icons/logo64.png" alt="" width="36" height="36" style="border-radius:9px"><div><h1>Mail Mutuelle</h1><p>Réglages partagés via votre compte Chrome</p></div></div>
+    <div class="savebox">
+      <span id="saveStatus" class="save-status" role="status"></span>
+      <button id="saveBtn" class="primary" disabled>Enregistrer</button>
+    </div>
+  </header>
+
+  <div id="managedBanner" class="managed-banner" hidden>
+    <b>Configuration gérée par le centre.</b> Les éléments marqués « Centre » et les réglages grisés sont imposés.
+    <span id="managedExtra"></span>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="fonctions" aria-selected="true">Fonctions</button>
+    <button role="tab" data-tab="modeles" aria-selected="false">Modèles de message</button>
+    <button role="tab" data-tab="mutuelles">Annuaire des mutuelles</button>
+    <button role="tab" data-tab="logiciel">Logiciel médical</button>
+    <button role="tab" data-tab="gmail">Gmail &amp; signature</button>
+    <button role="tab" data-tab="sauvegarde">Sauvegarde</button>
+  </nav>
+
+  <main>
+    <!-- FONCTIONS -->
+    <section id="tab-fonctions" class="tab" role="tabpanel">
+      <p class="help">Activez ou désactivez chaque bouton de la barre. Les réglages de chaque fonction restent conservés quand elle est désactivée.</p>
+      <div class="switches">
+        <label class="switch-row"><input type="checkbox" id="featMailMutuelle"><span class="sw"></span>
+          <span><b>Email à la mutuelle</b><small>Bouton « Ouvrir dans Gmail » avec les modèles « À la mutuelle » ; destinataire trouvé dans l'annuaire.</small></span></label>
+        <label class="switch-row"><input type="checkbox" id="featMailPatient"><span class="sw"></span>
+          <span><b>Email au patient</b><small>Modèles « Au patient » ; destinataire = email lu sur la fiche patient.</small></span></label>
+      </div>
+      <h2>Formulaires du CRM</h2>
+      <div class="switches" id="featCrm"></div>
+      <p class="muted">Pour ajouter ou modifier un formulaire (adresse, bouton), voir l'onglet « Logiciel médical ».</p>
+    </section>
+
+    <!-- MODÈLES -->
+    <section id="tab-modeles" class="tab" role="tabpanel" hidden>
+      <div class="split">
+        <aside class="list-col">
+          <ul id="tplList" class="item-list"></ul>
+          <div class="row-btns">
+            <button id="tplAdd">+ Nouveau</button>
+            <button id="tplDup">Dupliquer</button>
+          </div>
+        </aside>
+        <div class="edit-col" id="tplEditor">
+          <p class="locked-note" id="tplLockNote" hidden>Modèle du centre : lecture seule. « Dupliquer » pour en faire une version personnelle.</p>
+          <label>Nom du modèle (affiché dans le menu)
+            <input id="tplNom" type="text" maxlength="80">
+          </label>
+          <label>Destinataire
+            <select id="tplDest">
+              <option value="mutuelle">La mutuelle du patient (adresse de l'annuaire)</option>
+              <option value="patient">Le patient (email lu sur sa fiche)</option>
+            </select>
+          </label>
+          <label>Objet
+            <input id="tplObjet" type="text">
+          </label>
+          <label>Copie (Cc) — facultatif, plusieurs adresses séparées par des virgules
+            <input id="tplCc" type="text" placeholder="ex. comptabilite@moncentre.fr">
+          </label>
+          <label>Message
+            <textarea id="tplCorps" rows="14"></textarea>
+          </label>
+          <div class="chips-label">Insérer une donnée à l'endroit du curseur :</div>
+          <div id="chips" class="chips"></div>
+          <div class="row-btns end">
+            <button id="tplUp" title="Monter dans le menu">↑</button>
+            <button id="tplDown" title="Descendre dans le menu">↓</button>
+            <button id="tplPropose" hidden>Proposer au centre</button>
+            <button id="tplDel" class="danger">Supprimer ce modèle</button>
+          </div>
+          <details class="preview" open>
+            <summary>Aperçu avec un patient fictif</summary>
+            <div class="pv-line"><b>Objet :</b> <span id="pvObjet"></span></div>
+            <pre id="pvCorps"></pre>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- MUTUELLES -->
+    <section id="tab-mutuelles" class="tab" role="tabpanel" hidden>
+      <p class="help">Le nom lu sur la fiche patient est comparé au <b>nom</b> et aux <b>autres noms</b> de chaque mutuelle (sans tenir compte des majuscules ni des accents). Ajoutez dans « autres noms » les variantes affichées par votre logiciel (sigle, ancien nom, nom du gestionnaire…).</p>
+      <div class="toolbar">
+        <input id="mutSearch" type="search" placeholder="Rechercher une mutuelle…">
+        <span id="mutCount" class="muted"></span>
+        <button id="mutAdd">+ Ajouter une mutuelle</button>
+      </div>
+      <table class="mut-table">
+        <thead><tr><th>Nom</th><th>Autres noms (séparés par des virgules)</th><th>Adresse email</th><th></th></tr></thead>
+        <tbody id="mutBody"></tbody>
+      </table>
+      <div class="test-box">
+        <label>Tester : tapez un nom tel qu'il apparaît sur une fiche
+          <input id="mutTest" type="text" placeholder="ex. HARMONIE MUTUELLE - TP">
+        </label>
+        <div id="mutTestResult" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- LOGICIEL -->
+    <section id="tab-logiciel" class="tab" role="tabpanel" hidden>
+      <h2>Adresse du logiciel médical</h2>
+      <p class="help">La barre Mail Mutuelle n'apparaît que sur ces adresses. Collez l'adresse d'une fiche patient (ex. <code>https://app.monlogiciel.fr/patients/123</code>) : l'extension en déduit le site et demande l'autorisation à Chrome. Rechargez ensuite l'onglet du logiciel.</p>
+      <div class="toolbar">
+        <input id="siteInput" type="text" placeholder="https://app.monlogiciel.fr">
+        <button id="siteAdd" class="primary">Ajouter et autoriser</button>
+      </div>
+      <ul id="siteList" class="site-list"></ul>
+
+      <h2>Emplacement de la barre</h2>
+      <p class="help">Vide : la barre flotte en bas à droite de l'écran. Sinon, sélecteur CSS de l'élément du dossier patient après lequel l'insérer (clic droit sur l'élément &gt; Inspecter &gt; clic droit sur la ligne surlignée &gt; Copier &gt; Copier le sélecteur).</p>
+      <input id="anchorSelector" type="text" placeholder="ex. #entete-patient">
+
+      <h2>CRM (facultatif)</h2>
+      <p class="help">Chaque formulaire ajoute un bouton « ＋ … » dans la barre. Il ouvre la page du CRM, clique sur le bouton qui ouvre le formulaire (ex. « Nouveau devis »), puis recopie nom, prénom, date de naissance, N° de sécurité sociale et mutuelle. <b>Rien n'est enregistré automatiquement</b> : la secrétaire complète et valide.</p>
+      <table class="mut-table">
+        <thead><tr><th>Actif</th><th>Texte du bouton dans la barre</th><th>Adresse de la page du CRM</th><th>Bouton qui ouvre le formulaire</th><th></th></tr></thead>
+        <tbody id="crmBody"></tbody>
+      </table>
+      <div class="toolbar" style="margin-top:8px"><button id="crmAdd">+ Ajouter un formulaire</button><span id="crmStatus" class="muted"></span><button id="crmGrant" class="primary" hidden>Autoriser le CRM</button></div>
+
+      <h2>Lecture de la fiche patient</h2>
+      <p class="help">Par défaut, l'extension repère seule les libellés « Nom », « Prénom », « N° INSEE », « Né(e) le », « Mutuelle »… Si un champ est mal lu, indiquez ici le sélecteur CSS exact de la valeur (même méthode que ci-dessus). Laissez vide pour la détection automatique.</p>
+      <div class="sel-grid" id="selGrid"></div>
+    </section>
+
+    <!-- GMAIL -->
+    <section id="tab-gmail" class="tab" role="tabpanel" hidden>
+      <label>Compte Gmail à utiliser
+        <input id="gmailAccount" type="text" placeholder="ex. secretariat@moncentre.fr — vide = compte Google par défaut du navigateur">
+      </label>
+      <p class="help">Utile si plusieurs comptes Google sont connectés dans Chrome : indiquez l'adresse du compte d'envoi (ou son numéro 0, 1, 2 dans l'ordre de connexion).</p>
+      <label>Nom du centre (variable <code>{{nom_centre}}</code>)
+        <input id="centreNom" type="text">
+      </label>
+      <label>Signature (variable <code>{{signature}}</code>)
+        <textarea id="signature" rows="6"></textarea>
+      </label>
+    </section>
+
+    <!-- SAUVEGARDE -->
+    <section id="tab-sauvegarde" class="tab" role="tabpanel" hidden>
+      <h2>Partager les réglages entre postes</h2>
+      <p class="help">Les réglages suivent le compte Chrome de chaque secrétaire. Pour équiper un autre poste ou un autre compte : exportez ici, puis importez le fichier sur l'autre poste.</p>
+      <div class="row-btns">
+        <button id="exportBtn">Exporter (fichier .json)</button>
+        <label class="button-like">Importer un fichier…<input id="importFile" type="file" accept="application/json,.json" hidden></label>
+      </div>
+      <h2>Configuration du centre (console Google)</h2>
+      <p class="help">Pour imposer cette configuration sur tous les postes : réglez tout ici (modèles, annuaire, CRM, fonctions, signature), puis exportez. Le fichier se colle dans la console Google : Appareils &gt; Chrome &gt; Applications et extensions &gt; Mail Mutuelle &gt; « Règle pour les extensions ».</p>
+      <label>Email qui reçoit les propositions des secrétaires
+        <input id="polAdminEmail" type="text" placeholder="ex. reouven@medipole.org">
+      </label>
+      <label class="check"><input type="checkbox" id="polAllowMut" checked> Les secrétaires peuvent ajouter des mutuelles (ou une adresse manquante) sur leur poste</label>
+      <label class="check"><input type="checkbox" id="polAllowTpl" checked> Les secrétaires peuvent ajouter leurs propres modèles sur leur poste</label>
+      <div class="row-btns">
+        <button id="exportPolicy" class="primary">Exporter pour la console Google</button>
+        <button id="copyPolicy">Copier dans le presse-papiers</button>
+      </div>
+
+      <h2>Revenir aux valeurs d'origine</h2>
+      <div class="row-btns">
+        <button id="resetTpl" class="danger">Remettre les modèles d'origine</button>
+        <button id="resetMut" class="danger">Remettre l'annuaire d'origine</button>
+      </div>
+      <p class="muted" id="quota"></p>
+    </section>
+  </main>
+
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

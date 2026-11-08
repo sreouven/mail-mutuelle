@@ -1,0 +1,88 @@
+{
+  "type": "object",
+  "properties": {
+    "adminEmail": {
+      "title": "Email de l'administrateur",
+      "description": "Adresse qui reçoit les propositions d'ajout des secrétaires (bouton « Proposer au centre »).",
+      "type": "string"
+    },
+    "allowLocalMutuelles": {
+      "title": "Autoriser les ajouts de mutuelles sur le poste",
+      "description": "Les secrétaires peuvent ajouter des mutuelles absentes de l'annuaire du centre, ou renseigner une adresse manquante.",
+      "type": "boolean"
+    },
+    "allowLocalTemplates": {
+      "title": "Autoriser les modèles ajoutés sur le poste",
+      "type": "boolean"
+    },
+    "settings": {
+      "title": "Réglages imposés (chaque réglage présent est verrouillé sur les postes)",
+      "type": "object",
+      "properties": {
+        "siteMatches": { "type": "array", "items": { "type": "string" } },
+        "anchorSelector": { "type": "string" },
+        "selectors": {
+          "type": "object",
+          "properties": {
+            "nom": { "type": "string" },
+            "prenom": { "type": "string" },
+            "dateNaissance": { "type": "string" },
+            "nir": { "type": "string" },
+            "mutuelle": { "type": "string" }
+          }
+        },
+        "gmailAccount": { "type": "string" },
+        "centreNom": { "type": "string" },
+        "signature": { "type": "string" },
+        "crmTargets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "nom": { "type": "string" },
+              "url": { "type": "string" },
+              "bouton": { "type": "string" },
+              "actif": { "type": "boolean" }
+            }
+          }
+        },
+        "features": {
+          "type": "object",
+          "properties": {
+            "mailMutuelle": { "type": "boolean" },
+            "mailPatient": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "templates": {
+      "title": "Modèles de message du centre",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "dest": { "type": "string" },
+          "nom": { "type": "string" },
+          "objet": { "type": "string" },
+          "cc": { "type": "string" },
+          "corps": { "type": "string" }
+        }
+      }
+    },
+    "mutuelles": {
+      "title": "Annuaire des mutuelles du centre",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "nom": { "type": "string" },
+          "alias": { "type": "array", "items": { "type": "string" } },
+          "email": { "type": "string" }
+        }
+      }
+    }
+  }
+}
