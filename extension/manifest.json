@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mail Mutuelle",
   "short_name": "Mail Mutuelle",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Depuis le dossier patient, ouvre un email Gmail prérempli pour la mutuelle ou le patient, ou préremplit votre CRM.",
   "permissions": [
     "storage",
@@ -54,5 +54,6 @@
   ],
   "storage": {
     "managed_schema": "schema.json"
-  }
+  },
+  "update_url": "https://sreouven.github.io/mail-mutuelle/updates.xml"
 }

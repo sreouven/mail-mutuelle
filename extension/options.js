@@ -407,8 +407,22 @@
       const row = document.createElement('label');
       row.className = 'switch-row';
       const cb = document.createElement('input');
-      cb.type = 'checkbox'; cb.checked = t.actif !== false;
-      cb.addEventListener('change', () => { t.actif = cb.checked; markDirty(); renderCrm(); });
+      // Quand les formulaires CRM sont imposés par le centre, chaque poste peut quand même masquer un bouton (features.crmOff).
+      const centreLock = isLocked('crmTargets');
+      const off = () => (Array.isArray(features.crmOff) ? features.crmOff : []);
+      cb.type = 'checkbox';
+      cb.checked = t.actif !== false && !off().includes(t.id);
+      cb.dataset.centreOff = centreLock && t.actif === false ? '1' : '';
+      cb.addEventListener('change', () => {
+        if (centreLock) {
+          const set = new Set(off());
+          if (cb.checked) set.delete(t.id); else set.add(t.id);
+          features.crmOff = [...set];
+        } else {
+          t.actif = cb.checked;
+        }
+        markDirty(); renderCrm();
+      });
       const sw = document.createElement('span'); sw.className = 'sw';
       const txt = document.createElement('span');
       const b = document.createElement('b'); b.textContent = '＋ ' + (t.nom || '(sans nom)');
@@ -554,7 +568,11 @@
     lock(['featMailMutuelle', 'featMailPatient'], 'features');
     lock(['crmAdd', 'crmGrant'], 'crmTargets');
     document.querySelectorAll('#selGrid input').forEach(i => { i.disabled = isLocked('selectors'); });
-    document.querySelectorAll('#crmBody input, #crmBody button, #featCrm input').forEach(i => { i.disabled = isLocked('crmTargets'); });
+    document.querySelectorAll('#crmBody input, #crmBody button').forEach(i => { i.disabled = isLocked('crmTargets'); });
+    document.querySelectorAll('#featCrm input').forEach(i => {
+      i.disabled = isLocked('features') || i.dataset.centreOff === '1';
+      i.title = i.disabled ? 'Imposé par le centre' : '';
+    });
     if (isLocked('siteMatches')) document.querySelectorAll('#siteList button').forEach(b => { b.disabled = true; });
     $('mutAdd').disabled = !canAddMut();
     $('resetTpl').disabled = managed.templatesLocked;

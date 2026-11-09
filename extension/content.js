@@ -405,7 +405,10 @@
     const list = enabledTemplates();
     return list.find(t => t.id === (ui && ui.tpl.value)) || list.find(t => t.id === lastTemplateId) || list[0] || null;
   }
-  const activeCrm = () => state.settings.crmTargets.filter(t => t.actif !== false);
+  const activeCrm = () => {
+    const off = Array.isArray(state.settings.features.crmOff) ? state.settings.features.crmOff : [];
+    return state.settings.crmTargets.filter(t => t.actif !== false && !off.includes(t.id));
+  };
 
   function patient() {
     const p = {};
