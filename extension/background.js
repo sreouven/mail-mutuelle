@@ -4,6 +4,7 @@ const M = self.MailMutuelle;
 const SCRIPT_ID = 'mail-mutuelle-sites';
 const CRM_SCRIPT_ID = 'mail-mutuelle-crm';
 const CRM_PENDING_MS = 3 * 60 * 1000;
+const LAB_URL = 'https://moncompte.mydentallab.fr/center/neworder.html';
 
 /* Injection du script sur les adresses du logiciel choisies dans les réglages.
    Les appels sont mis en file pour éviter deux enregistrements simultanés. */
@@ -53,6 +54,25 @@ async function openCrm(patient, targetId, sender) {
   return { ok: true };
 }
 
+/* My Dental Lab : nouvelle fiche avec le nom du patient (même principe que le CRM) */
+async function openLab(patient, sender) {
+  const props = { url: LAB_URL, active: true };
+  if (sender.tab) { props.index = sender.tab.index + 1; props.openerTabId = sender.tab.id; props.windowId = sender.tab.windowId; }
+  const tab = await chrome.tabs.create(props);
+  await chrome.storage.session.set({ ['lab_' + tab.id]: { patient, ts: Date.now() } });
+  return { ok: true };
+}
+
+async function labPending(sender) {
+  if (!sender.tab) return null;
+  const key = 'lab_' + sender.tab.id;
+  const item = (await chrome.storage.session.get(key))[key];
+  if (!item) return null;
+  await chrome.storage.session.remove(key);
+  if (Date.now() - item.ts > CRM_PENDING_MS) return null;
+  return { patient: item.patient };
+}
+
 async function crmPending(sender) {
   if (!sender.tab) return null;
   const key = 'crm_' + sender.tab.id;
@@ -94,6 +114,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (typeof msg.patient[k] === 'string') patient[k] = msg.patient[k].slice(0, 100);
     }
     openCrm(patient, String(msg.targetId || ''), sender).then(sendResponse, e => sendResponse({ ok: false, error: String(e) }));
+    return true;
+  }
+  if (msg && msg.type === 'openLab' && msg.patient && typeof msg.patient === 'object') {
+    const patient = {};
+    for (const k of ['nom', 'prenom', 'civilite']) {
+      if (typeof msg.patient[k] === 'string') patient[k] = msg.patient[k].slice(0, 100);
+    }
+    openLab(patient, sender).then(sendResponse, e => sendResponse({ ok: false, error: String(e) }));
+    return true;
+  }
+  if (msg && msg.type === 'labPending') {
+    labPending(sender).then(sendResponse, () => sendResponse(null));
     return true;
   }
   if (msg && msg.type === 'crmPending') {

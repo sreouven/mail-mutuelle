@@ -601,10 +601,13 @@
     ui.cube.title = 'Mail Mutuelle — ' + who + (w.length ? ' (' + w.length + ' point(s) à vérifier)' : '');
     // Boutons CRM (un par formulaire réglé)
     const crmList = activeCrm();
-    const tKey = JSON.stringify(crmList.map(t => [t.id, t.nom]));
+    const labOn = !!state.settings.features.myDentalLab;
+    const tKey = JSON.stringify([crmList.map(t => [t.id, t.nom]), labOn]);
     if (ui.crms.dataset.key !== tKey) {
-      ui.crms.replaceChildren(...crmList.map(t =>
-        el('button', { class: 'crm', title: 'Ouvrir « ' + (t.nom || 'CRM') + ' » et préremplir la fiche avec ce patient', onclick: () => openCrm(t.id) }, '＋ ' + (t.nom || 'CRM'))));
+      const btns = crmList.map(t =>
+        el('button', { class: 'crm', title: 'Ouvrir « ' + (t.nom || 'CRM') + ' » et préremplir la fiche avec ce patient', onclick: () => openCrm(t.id) }, '＋ ' + (t.nom || 'CRM')));
+      if (labOn) btns.push(el('button', { class: 'crm', title: 'Nouvelle fiche My Dental Lab au nom de ce patient', onclick: openLab }, '＋ Fiche labo'));
+      ui.crms.replaceChildren(...btns);
       ui.crms.dataset.key = tKey;
     }
     ui.go.disabled = !tpl;
@@ -618,6 +621,18 @@
     try {
       chrome.runtime.sendMessage({ type: 'openCrm', targetId, patient: payload }).then(r => {
         if (!r || !r.ok) window.alert('Mail Mutuelle : ' + ((r && r.error) || 'impossible d\'ouvrir le CRM.') + '\nVérifiez le formulaire CRM dans les réglages.');
+      }, () => {});
+    } catch (e) {
+      window.alert('Mail Mutuelle : rechargez la page (extension mise à jour).');
+    }
+  }
+
+  function openLab() {
+    const p = patient();
+    if (!p.nom) { window.alert('Mail Mutuelle : aucun patient lu sur cette page.'); return; }
+    try {
+      chrome.runtime.sendMessage({ type: 'openLab', patient: { nom: p.nom || '', prenom: p.prenom || '' } }).then(r => {
+        if (!r || !r.ok) window.alert('Mail Mutuelle : ' + ((r && r.error) || 'impossible d\'ouvrir My Dental Lab.'));
       }, () => {});
     } catch (e) {
       window.alert('Mail Mutuelle : rechargez la page (extension mise à jour).');

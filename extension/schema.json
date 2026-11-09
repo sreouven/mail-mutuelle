@@ -51,7 +51,8 @@
           "type": "object",
           "properties": {
             "mailMutuelle": { "type": "boolean" },
-            "mailPatient": { "type": "boolean" }
+            "mailPatient": { "type": "boolean" },
+            "myDentalLab": { "type": "boolean" }
           }
         }
       }

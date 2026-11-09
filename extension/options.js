@@ -396,6 +396,7 @@
   function renderFeatures() {
     $('featMailMutuelle').checked = features.mailMutuelle !== false;
     $('featMailPatient').checked = features.mailPatient !== false;
+    $('featMyDentalLab').checked = !!features.myDentalLab;
     const box = $('featCrm');
     box.replaceChildren();
     if (!crmTargets.length) {
@@ -435,6 +436,7 @@
   }
   $('featMailMutuelle').addEventListener('change', e => { features.mailMutuelle = e.target.checked; markDirty(); });
   $('featMailPatient').addEventListener('change', e => { features.mailPatient = e.target.checked; markDirty(); });
+  $('featMyDentalLab').addEventListener('change', e => { features.myDentalLab = e.target.checked; markDirty(); });
 
   /* ---------------- formulaires CRM ---------------- */
   let crmTargets = [];
@@ -565,7 +567,7 @@
     lock(['centreNom'], 'centreNom');
     lock(['signature'], 'signature');
     lock(['siteInput', 'siteAdd'], 'siteMatches');
-    lock(['featMailMutuelle', 'featMailPatient'], 'features');
+    lock(['featMailMutuelle', 'featMailPatient', 'featMyDentalLab'], 'features');
     lock(['crmAdd', 'crmGrant'], 'crmTargets');
     document.querySelectorAll('#selGrid input').forEach(i => { i.disabled = isLocked('selectors'); });
     document.querySelectorAll('#crmBody input, #crmBody button').forEach(i => { i.disabled = isLocked('crmTargets'); });

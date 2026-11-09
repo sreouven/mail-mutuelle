@@ -24,7 +24,7 @@
     // CRM (facultatif) : formulaires à préremplir — { id, nom (texte du bouton dans la barre), url, bouton (texte du bouton qui ouvre le formulaire) }
     crmTargets: [],
     // Fonctions activables dans les réglages
-    features: { mailMutuelle: true, mailPatient: true },
+    features: { mailMutuelle: true, mailPatient: true, myDentalLab: false },
     v: 2
   };
 
